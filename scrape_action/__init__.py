@@ -1,22 +1,19 @@
-import logging
+import json
 import azure.functions as func
-
+from extract_emails import DefaultWorker
+from extract_emails.browsers import HttpxBrowser
+from extract_emails.link_filters import ContactInfoLinkFilter
+from .scraper.scraper import urls
+from .scraper.email_data_extractor import EmailExtractor
 
 def main(req: func.HttpRequest) -> func.HttpResponse:
-    logging.info("Scrape action HTTP trigger processed a request.")
-
-    name = req.params.get("name")
-    if not name:
-        try:
-            body = req.get_json()
-        except ValueError:
-            body = {}
-        name = body.get("name")
-
-    if not name:
+    body: dict = req.get_json()
+    url = body["url"]
+    assert url
+    with HttpxBrowser() as browser:
+        worker = DefaultWorker(url, browser, link_filter=ContactInfoLinkFilter(url,urls), data_extractors=[EmailExtractor()])
+        data = worker.get_data()
+        dict_data = [page.model_dump() for page in data if page.data["email"]]
         return func.HttpResponse(
-            "Pass a name in the query string or request body.",
-            status_code=400,
+            json.dumps(dict_data)
         )
-
-    return func.HttpResponse(f"Hello, {name}! Function executed successfully.")
