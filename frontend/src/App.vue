@@ -1,5 +1,9 @@
 <script setup>
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, onUnmounted, provide, ref, watch } from 'vue';
+
+import EmailScrapeDashboard from './views/EmailScrapeDashboard.vue';
+import EmailSendDashboard from './views/EmailSendDashboard.vue';
+import SearchScrapeDashboard from './views/SearchScrapeDashboard.vue';
 import { deleteUser, getProfile, listUsers, login, register, verifyUser } from './services/api';
 
 const mode = ref('login');
@@ -16,9 +20,27 @@ const adminStatus = ref('');
 const adminStatusType = ref('success');
 const verifyingUserId = ref(null);
 const deletingUserId = ref(null);
+const dashboards = [
+  { id: 'email-scrape', label: 'Email scrape', component: EmailScrapeDashboard },
+  { id: 'search-scrape', label: 'Search scrape', component: SearchScrapeDashboard },
+  { id: 'email-send', label: 'Email send', component: EmailSendDashboard }
+];
+const dashboardMap = dashboards.reduce(
+  (map, entry) => {
+    map[entry.id] = entry.component;
+    return map;
+  },
+  {}
+);
+const activeDashboard = ref(dashboards[0].id);
+const currentDashboardComponent = computed(() => dashboardMap[activeDashboard.value]);
+
+provide('authToken', token);
 
 const submitLabel = computed(() => (mode.value === 'login' ? 'Sign in' : 'Create account'));
+const pageTitle = computed(() => (token.value ? 'Dashboard' : mode.value === 'login' ? 'Welcome back' : 'Create your account'));
 const isAdmin = computed(() => Boolean(profile.value?.is_superuser));
+const isVerified = computed(() => Boolean(profile.value?.is_verified));
 const pendingUsers = computed(() => adminUsers.value.filter((user) => !user.is_verified));
 
 const handleSubmit = async () => {
@@ -64,20 +86,70 @@ const fetchAdminUsers = async () => {
   }
 };
 
+const extractDashboardFromPath = () => {
+  if (typeof window === 'undefined') {
+    return null;
+  }
+  const match = window.location.pathname.match(/^\/dashboard\/([^/]+)$/);
+  if (match && dashboardMap[match[1]]) {
+    return match[1];
+  }
+  return null;
+};
+
+const updateHistoryPath = (path) => {
+  if (typeof window === 'undefined') {
+    return;
+  }
+  if (window.location.pathname !== path) {
+    window.history.replaceState({}, '', path);
+  }
+};
+
+const goToDashboard = (id) => {
+  if (!dashboardMap[id]) {
+    return;
+  }
+  activeDashboard.value = id;
+  if (isVerified.value) {
+    updateHistoryPath(`/dashboard/${id}`);
+  }
+};
+
+const ensureDashboardRoute = () => {
+  if (typeof window === 'undefined') {
+    return;
+  }
+  const path = window.location.pathname;
+  const currentId = extractDashboardFromPath();
+  if (isVerified.value) {
+    if (currentId) {
+      activeDashboard.value = currentId;
+    } else {
+      updateHistoryPath(`/dashboard/${activeDashboard.value}`);
+    }
+  } else if (path.startsWith('/dashboard')) {
+    updateHistoryPath('/');
+  }
+};
+
 const fetchProfile = async () => {
   if (!token.value) {
     profile.value = null;
     adminUsers.value = [];
+    ensureDashboardRoute();
     return;
   }
   try {
     profile.value = await getProfile(token.value);
     await fetchAdminUsers();
+    ensureDashboardRoute();
   } catch (error) {
     token.value = '';
     window.localStorage.removeItem('sb_access_token');
     profile.value = null;
     adminUsers.value = [];
+    ensureDashboardRoute();
     statusType.value = 'error';
     status.value = error.message ?? 'Session expired, please log in again.';
   }
@@ -125,6 +197,21 @@ const deleteAccount = async (userId) => {
   }
 };
 
+const handlePopState = () => {
+  if (!isVerified.value) {
+    if (typeof window !== 'undefined' && window.location.pathname.startsWith('/dashboard')) {
+      updateHistoryPath('/');
+    }
+    return;
+  }
+  const currentId = extractDashboardFromPath();
+  if (currentId) {
+    activeDashboard.value = currentId;
+  } else {
+    updateHistoryPath(`/dashboard/${activeDashboard.value}`);
+  }
+};
+
 const logout = () => {
   token.value = '';
   window.localStorage.removeItem('sb_access_token');
@@ -133,37 +220,53 @@ const logout = () => {
   adminStatus.value = '';
   verifyingUserId.value = null;
   deletingUserId.value = null;
+  ensureDashboardRoute();
 };
 
-onMounted(fetchProfile);
+watch(isVerified, () => ensureDashboardRoute());
+watch(activeDashboard, (value, oldValue) => {
+  if (value !== oldValue && isVerified.value) {
+    updateHistoryPath(`/dashboard/${value}`);
+  }
+});
+
+onMounted(() => {
+  const pathDashboard = extractDashboardFromPath();
+  if (pathDashboard) {
+    activeDashboard.value = pathDashboard;
+  }
+  if (typeof window !== 'undefined') {
+    window.addEventListener('popstate', handlePopState);
+  }
+  ensureDashboardRoute();
+  fetchProfile();
+});
+
+onUnmounted(() => {
+  if (typeof window !== 'undefined') {
+    window.removeEventListener('popstate', handlePopState);
+  }
+});
 </script>
 
 <template>
   <div class="card">
-    <div class="tabs">
-      <div
-        class="tab"
-        :class="{ active: mode === 'login' }"
-        @click="mode = 'login'"
-      >
+    <div v-if="!token" class="tabs">
+      <div class="tab" :class="{ active: mode === 'login' }" @click="mode = 'login'">
         Login
       </div>
-      <div
-        class="tab"
-        :class="{ active: mode === 'register' }"
-        @click="mode = 'register'"
-      >
+      <div class="tab" :class="{ active: mode === 'register' }" @click="mode = 'register'">
         Register
       </div>
     </div>
 
-    <h1>{{ mode === 'login' ? 'Welcome back' : 'Create your account' }}</h1>
+    <h1>{{ pageTitle }}</h1>
 
     <div v-if="status" class="alert" :class="statusType">
       {{ status }}
     </div>
 
-    <form v-if="!token" @submit.prevent="handleSubmit">
+    <form v-if="!token" class="auth-form" @submit.prevent="handleSubmit">
       <div class="form-control">
         <label for="email">Email</label>
         <input
@@ -212,6 +315,27 @@ onMounted(fetchProfile);
       <p>Status: {{ profile?.is_active ? 'Active' : 'Inactive' }}</p>
       <p>Verification: {{ profile?.is_verified ? 'Verified' : 'Pending' }}</p>
       <button type="button" @click="logout">Log out</button>
+
+      <div v-if="!isVerified" class="alert warning">
+        Your account must be verified before you can access the scraping and email dashboards.
+      </div>
+
+      <div v-else class="dashboard">
+        <nav class="dashboard-nav">
+          <button
+            v-for="entry in dashboards"
+            :key="entry.id"
+            type="button"
+            class="dashboard-link"
+            :class="{ active: activeDashboard === entry.id }"
+            @click="goToDashboard(entry.id)"
+          >
+            {{ entry.label }}
+          </button>
+        </nav>
+
+        <component :is="currentDashboardComponent" />
+      </div>
 
       <section v-if="isAdmin" class="admin-panel">
         <div class="admin-panel__header">

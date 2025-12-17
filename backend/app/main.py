@@ -10,6 +10,7 @@ from fastapi.staticfiles import StaticFiles
 
 from .admin import router as admin_router
 from .auth import auth_backend, fastapi_users
+from .dashboard import router as dashboard_router
 from .config import get_settings
 from .database import Base, engine
 from .models import User
@@ -55,6 +56,7 @@ app.include_router(
     tags=["users"],
 )
 app.include_router(admin_router)
+app.include_router(dashboard_router)
 
 
 @app.get("/api/health")

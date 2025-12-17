@@ -66,3 +66,119 @@ export const deleteUser = (userId, token) =>
       Authorization: `Bearer ${token}`
     }
   });
+
+export const getWebsites = (token) =>
+  apiFetch('/api/dashboard/websites', {
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  });
+
+export const createWebsite = (payload, token) =>
+  apiFetch('/api/dashboard/websites', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(payload)
+  });
+
+export const scrapeWebsites = (token) =>
+  apiFetch('/api/dashboard/websites/scrape', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  });
+
+export const deleteWebsite = (id, token) =>
+  apiFetch(`/api/dashboard/websites/${id}`, {
+    method: 'DELETE',
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  });
+
+export const getSearchQueries = (token) =>
+  apiFetch('/api/dashboard/queries', {
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  });
+
+export const createSearchQuery = (payload, token) =>
+  apiFetch('/api/dashboard/queries', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(payload)
+  });
+
+export const scrapeSearchQueries = (token) =>
+  apiFetch('/api/dashboard/queries/scrape', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  });
+
+export const deleteSearchQuery = (id, token) =>
+  apiFetch(`/api/dashboard/queries/${id}`, {
+    method: 'DELETE',
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  });
+
+export const getEmailTemplate = (token) =>
+  apiFetch('/api/dashboard/email-template', {
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  });
+
+export const updateEmailTemplate = (payload, token) =>
+  apiFetch('/api/dashboard/email-template', {
+    method: 'PUT',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(payload)
+  });
+
+export const sendEmailCampaign = (token) =>
+  apiFetch('/api/dashboard/email/send', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  });
+
+export const getEmails = (token) =>
+  apiFetch('/api/dashboard/emails', {
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  });
+
+export const addEmail = (payload, token) =>
+  apiFetch('/api/dashboard/emails', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(payload)
+  });
+
+export const deleteEmail = (id, token) =>
+  apiFetch(`/api/dashboard/emails/${id}`, {
+    method: 'DELETE',
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  });

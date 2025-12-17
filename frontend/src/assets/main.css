@@ -21,20 +21,21 @@ body {
   align-items: center;
   justify-content: center;
   min-height: 100vh;
-  padding: 1.5rem;
+  padding: 2.5rem;
 }
 
 .card {
-  width: min(540px, 100%);
+  width: min(760px, 100%);
   background: white;
   border-radius: 18px;
-  padding: 2rem;
+  padding: 2.5rem;
   box-shadow: 0 20px 50px rgba(15, 23, 42, 0.15);
 }
 
 h1 {
   margin-top: 0;
-  font-size: 1.75rem;
+  font-size: 2rem;
+  margin-bottom: 1.75rem;
 }
 
 button {
@@ -65,12 +66,29 @@ button:disabled {
   background: #b91c1c;
 }
 
+.button-secondary {
+  background: #0f172a;
+}
+
+.button-secondary:hover {
+  background: #0b1220;
+}
+
 input {
   width: 100%;
   padding: 0.65rem 0.85rem;
   border-radius: 10px;
   border: 1px solid #cbd5f5;
   font-size: 1rem;
+}
+
+textarea {
+  width: 100%;
+  padding: 0.65rem 0.85rem;
+  border-radius: 10px;
+  border: 1px solid #cbd5f5;
+  font-size: 1rem;
+  font-family: inherit;
 }
 
 label {
@@ -80,7 +98,13 @@ label {
 }
 
 .form-control {
-  margin-bottom: 1.1rem;
+  margin-bottom: 1.25rem;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 }
 
 .tabs {
@@ -122,8 +146,16 @@ label {
   color: #14532d;
 }
 
+.alert.warning {
+  background: #fef3c7;
+  color: #92400e;
+}
+
 .profile-card {
-  text-align: center;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
 }
 
 .profile-card h2 {
@@ -203,4 +235,106 @@ label {
   background: white;
   text-align: center;
   font-weight: 500;
+}
+
+.dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  margin-top: 1.75rem;
+  text-align: left;
+}
+
+.dashboard-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 0.25rem;
+}
+
+.dashboard-link {
+  flex: 1;
+  text-align: center;
+  padding: 0.75rem 1rem;
+  border-radius: 999px;
+  background: #e2e8f0;
+  color: #0f172a;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.dashboard-link.active {
+  background: #2563eb;
+  color: white;
+}
+
+.dashboard-section {
+  padding: 1.5rem;
+  border-radius: 14px;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.section-header h3 {
+  margin: 0;
+}
+
+.section-header p {
+  margin: 0.25rem 0 0;
+  color: #475569;
+}
+
+.section-form {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.section-form input {
+  flex: 1;
+}
+
+.item-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.item-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+  background: white;
+}
+
+.item-primary {
+  margin: 0;
+  font-weight: 600;
+  word-break: break-word;
+}
+
+.item-meta {
+  margin: 0.2rem 0 0;
+  font-size: 0.85rem;
+  color: #475569;
+}
+
+.section-actions {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-top: 1rem;
 }
