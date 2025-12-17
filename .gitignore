@@ -25,3 +25,4 @@ backend/requirements.txt
 .DS_Store
 *.db
 .fuse*
+*.env
