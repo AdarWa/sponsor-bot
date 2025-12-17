@@ -12,9 +12,13 @@ Located in `backend/`, the API exposes JWT authentication routes (register/login
 cd backend
 python -m venv .venv
 source .venv/bin/activate
+# Generate requirements.txt from pyproject using uv (https://docs.astral.sh/uv/)
+uv pip compile pyproject.toml -o requirements.txt
 pip install -r requirements.txt
 uvicorn app.main:app --reload
 ```
+
+> `backend/requirements.txt` is generated and ignored by git so every environment (and the CI workflow) gets a fresh lock derived from `pyproject.toml`.
 
 Env vars (see `backend/app/config.py`) can be overridden with a `.env` file.
 
