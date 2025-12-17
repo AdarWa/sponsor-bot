@@ -1,5 +1,3 @@
-"""Utility helpers that describe how to plug in real scraping/email logic."""
-
 from __future__ import annotations
 
 from typing import Sequence
@@ -34,17 +32,10 @@ async def scrape_search_queries(session: AsyncSession) -> str:
 
 
 async def send_email_campaign(session: AsyncSession, template: EmailTemplate, emails: Sequence[str]) -> str:
-    """Outline how to send a campaign using the stored template.
-
-    Suggested implementation steps:
-
-    1. Choose an email provider/SDK (SendGrid, AWS SES, SMTP, etc.).
-    2. Iterate over ``emails`` and send each message using ``template.subject``/``template.body``.
-       Consider queuing or batching to respect provider rate limits.
-    3. Log delivery results to a new table if you need auditing.
-    """
+    """Outline how to send a campaign using the stored template."""
 
     _ = await session.execute(select(EmailRecord.id).limit(1))
+    
     return (
         "Email sending not implemented. Update `scraping.send_email_campaign` to deliver the "
         f"stored template to {len(emails)} recipients."
