@@ -24,3 +24,4 @@ backend/requirements.txt
 .idea/
 .DS_Store
 *.db
+.fuse*

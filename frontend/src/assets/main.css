@@ -320,6 +320,10 @@ label {
   background: white;
 }
 
+.item-details {
+  flex: 1;
+}
+
 .item-primary {
   margin: 0;
   font-weight: 600;

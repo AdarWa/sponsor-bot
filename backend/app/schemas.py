@@ -61,6 +61,8 @@ class EmailRecordRead(EmailRecordBase):
 
     id: uuid.UUID
     created_at: datetime
+    last_sent_at: datetime | None = None
+    send_count: int
 
 
 class EmailTemplateRead(BaseModel):

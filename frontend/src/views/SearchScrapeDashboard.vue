@@ -127,8 +127,10 @@ watch(
         :key="query.id"
         class="item-row"
       >
-        <p class="item-primary">{{ query.query }}</p>
-        <p class="item-meta">Added {{ new Date(query.created_at).toLocaleString() }}</p>
+        <div class="item-details">
+          <p class="item-primary">{{ query.query }}</p>
+          <p class="item-meta">Added {{ new Date(query.created_at).toLocaleString() }}</p>
+        </div>
         <button type="button" class="button-danger" @click="removeQuery(query.id)">
           Remove
         </button>

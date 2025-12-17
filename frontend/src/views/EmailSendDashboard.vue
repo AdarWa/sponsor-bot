@@ -178,9 +178,18 @@ watch(
           :key="record.id"
           class="item-row"
         >
-          <div>
+          <div class="item-details">
             <p class="item-primary">{{ record.email }}</p>
-            <p class="item-meta">Added {{ new Date(record.created_at).toLocaleString() }}</p>
+            <p class="item-meta">
+              Added {{ new Date(record.created_at).toLocaleString() }}
+              <span v-if="record.send_count > 0">
+                · Sent {{ record.send_count }} time{{ record.send_count > 1 ? 's' : '' }}
+                <span v-if="record.last_sent_at">
+                  (last {{ new Date(record.last_sent_at).toLocaleString() }})
+                </span>
+              </span>
+              <span v-else>· Not sent yet</span>
+            </p>
           </div>
           <button type="button" class="button-danger" @click="removeEmail(record.id)">
             Remove

@@ -127,8 +127,10 @@ watch(
         :key="site.id"
         class="item-row"
       >
-        <p class="item-primary">{{ site.url }}</p>
-        <p class="item-meta">Added {{ new Date(site.created_at).toLocaleString() }}</p>
+        <div class="item-details">
+          <p class="item-primary">{{ site.url }}</p>
+          <p class="item-meta">Added {{ new Date(site.created_at).toLocaleString() }}</p>
+        </div>
         <button type="button" class="button-danger" @click="removeWebsite(site.id)">
           Remove
         </button>

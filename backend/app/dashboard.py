@@ -2,6 +2,9 @@
 from __future__ import annotations
 from uuid import UUID
 
+from datetime import datetime, timezone
+import uuid
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
@@ -20,10 +23,22 @@ from .schemas import (
     SearchScrapeQueryCreate,
     SearchScrapeQueryRead,
 )
+from .scraping import scrape_email_targets, scrape_search_queries, send_email_campaign
 
 router = APIRouter(prefix="/api/dashboard", tags=["dashboard"])
 
 current_verified_user = fastapi_users.current_user(active=True, verified=True)
+
+
+def _normalize_url(url: str) -> str:
+    cleaned = url.strip()
+    if cleaned.endswith("/"):
+        cleaned = cleaned.rstrip("/")
+    return cleaned.lower()
+
+
+def _normalize_email(email: str) -> str:
+    return email.strip().lower()
 
 
 async def _ensure_template(session: AsyncSession) -> EmailTemplate:
@@ -56,7 +71,12 @@ async def add_website(
     session: AsyncSession = Depends(get_async_session),
     _: User = Depends(current_verified_user),
 ) -> EmailScrapeTarget:
-    target = EmailScrapeTarget(url=payload.url.strip())
+    normalized = _normalize_url(payload.url)
+    existing = await session.execute(select(EmailScrapeTarget).where(EmailScrapeTarget.url == normalized))
+    if existing.scalars().first():
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Website already tracked.")
+
+    target = EmailScrapeTarget(url=normalized)
     session.add(target)
     try:
         await session.commit()
@@ -85,9 +105,8 @@ async def trigger_email_scrape(
     session: AsyncSession = Depends(get_async_session),
     _: User = Depends(current_verified_user),
 ) -> dict[str, str]:
-    # Placeholder for actual scraping implementation.
-    await session.execute(select(EmailScrapeTarget).limit(1))
-    return {"status": "pending", "message": "Email scraping not implemented yet."}
+    message = await scrape_email_targets(session)
+    return {"status": "pending", "message": message}
 
 
 @router.get("/queries", response_model=list[SearchScrapeQueryRead])
@@ -134,9 +153,8 @@ async def trigger_search_scrape(
     session: AsyncSession = Depends(get_async_session),
     _: User = Depends(current_verified_user),
 ) -> dict[str, str]:
-    # Placeholder for actual search scraping implementation.
-    await session.execute(select(SearchScrapeQuery).limit(1))
-    return {"status": "pending", "message": "Search scraping not implemented yet."}
+    message = await scrape_search_queries(session)
+    return {"status": "pending", "message": message}
 
 
 @router.get("/email-template", response_model=EmailTemplateRead)
@@ -168,9 +186,21 @@ async def trigger_email_send(
     session: AsyncSession = Depends(get_async_session),
     _: User = Depends(current_verified_user),
 ) -> dict[str, str]:
-    await _ensure_template(session)
-    # Placeholder for actual email sending implementation.
-    return {"status": "pending", "message": "Email sending not implemented yet."}
+    template = await _ensure_template(session)
+    result = await session.execute(select(EmailRecord))
+    records = list(result.scalars().all())
+    emails = [record.email for record in records]
+    message = await send_email_campaign(session, template, emails)
+
+    if records:
+        timestamp = datetime.now(timezone.utc)
+        for record in records:
+            record.last_sent_at = timestamp
+            record.send_count = (record.send_count or 0) + 1
+            session.add(record)
+        await session.commit()
+
+    return {"status": "pending", "message": message}
 @router.get("/emails", response_model=list[EmailRecordRead])
 async def list_emails(
     session: AsyncSession = Depends(get_async_session),
@@ -186,7 +216,12 @@ async def add_email(
     session: AsyncSession = Depends(get_async_session),
     _: User = Depends(current_verified_user),
 ) -> EmailRecord:
-    record = EmailRecord(email=payload.email.strip())
+    normalized = _normalize_email(payload.email)
+    existing = await session.execute(select(EmailRecord).where(EmailRecord.email == normalized))
+    if existing.scalars().first():
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Email already tracked.")
+
+    record = EmailRecord(email=normalized)
     session.add(record)
     try:
         await session.commit()
@@ -208,4 +243,3 @@ async def delete_email(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Email not found")
     await session.delete(record)
     await session.commit()
-
