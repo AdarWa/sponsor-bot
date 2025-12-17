@@ -8,12 +8,16 @@ from .scraper.email_data_extractor import EmailExtractor
 
 def main(req: func.HttpRequest) -> func.HttpResponse:
     body: dict = req.get_json()
-    url = body["url"]
-    assert url
+    scrape_urls = body["urls"]
+    assert urls
+    emails = []
     with HttpxBrowser() as browser:
-        worker = DefaultWorker(url, browser, link_filter=ContactInfoLinkFilter(url,urls), data_extractors=[EmailExtractor()])
-        data = worker.get_data()
-        dict_data = [page.model_dump() for page in data if page.data["email"]]
-        return func.HttpResponse(
-            json.dumps(dict_data)
-        )
+        for url in scrape_urls:
+            worker = DefaultWorker(url, browser, link_filter=ContactInfoLinkFilter(url,urls), data_extractors=[EmailExtractor()])
+            data = worker.get_data()
+            emails_found = [page.data["email"] for page in data if page.data["email"]]
+            emails += emails_found
+        
+    return func.HttpResponse(
+        json.dumps(emails)
+    )

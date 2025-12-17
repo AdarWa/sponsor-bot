@@ -1,0 +1,11 @@
+[project]
+name = "sponsor-bot-api"
+version = "0.1.0"
+description = "Sponsor Bot API"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "azure-functions",
+    "extract_emails[all]",
+    "beautifulsoup4"
+]
