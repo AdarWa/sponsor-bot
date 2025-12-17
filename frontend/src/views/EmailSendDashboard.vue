@@ -157,7 +157,6 @@ watch(
 
     <div class="email-records">
       <h4>Recipient emails</h4>
-      <p class="section-description">Add individual emails or remove ones you no longer want to contact.</p>
 
       <div v-if="emailListStatus" class="alert" :class="emailListStatusType">
         {{ emailListStatus }}
@@ -189,7 +188,7 @@ watch(
         </div>
       </div>
       <div v-else class="empty-state">
-        No emails yet. Add one above to build your outreach list.
+        No emails yet.
       </div>
     </div>
 

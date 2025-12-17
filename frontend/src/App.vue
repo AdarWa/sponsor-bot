@@ -309,11 +309,7 @@ onUnmounted(() => {
     </form>
 
     <div v-else class="profile-card">
-      <p class="alert success">Authenticated via fastapi-users JWT backend.</p>
-      <h2>{{ profile?.full_name || profile?.email }}</h2>
-      <p>{{ profile?.email }}</p>
-      <p>Status: {{ profile?.is_active ? 'Active' : 'Inactive' }}</p>
-      <p>Verification: {{ profile?.is_verified ? 'Verified' : 'Pending' }}</p>
+      <h2>Good {{ new Date().getHours() < 12 ? 'morning' : new Date().getHours() < 18 ? 'afternoon' : 'evening' }}, {{ profile?.full_name.split(' ')[0] || profile?.email }}</h2>
       <button type="button" @click="logout">Log out</button>
 
       <div v-if="!isVerified" class="alert warning">

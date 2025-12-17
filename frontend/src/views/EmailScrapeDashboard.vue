@@ -100,7 +100,7 @@ watch(
     <div class="section-header">
       <div>
         <h3>Email scrape dashboard</h3>
-        <p>Manage websites to crawl for contact information.</p>
+        <p>Add websites to crawl for contact information.</p>
       </div>
       <button type="button" class="button-secondary" @click="scrapeAll" :disabled="scraping">
         {{ scraping ? 'Starting…' : 'Scrape all websites' }}
@@ -135,7 +135,7 @@ watch(
       </div>
     </div>
     <div v-else class="empty-state">
-      No websites yet. Add one above to start building your scrape list.
+      No websites yet.
     </div>
   </section>
 </template>

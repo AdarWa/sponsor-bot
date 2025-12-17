@@ -115,7 +115,7 @@ watch(
       <input
         v-model="newQuery"
         type="text"
-        placeholder='e.g. "sports sponsors contact"'
+        placeholder='generous big tech companies that are also nice and stuff'
         required
       />
       <button type="submit">Add query</button>
@@ -135,7 +135,7 @@ watch(
       </div>
     </div>
     <div v-else class="empty-state">
-      No search queries yet. Add a few phrases to seed discovery.
+      No search queries yet.
     </div>
   </section>
 </template>
