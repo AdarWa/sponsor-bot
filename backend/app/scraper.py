@@ -2,7 +2,7 @@ import logging
 import aiohttp
 import asyncio
 
-async def scrape_emails_via_azure(url: list[str], azure_function_url: str) -> list[str]:
+async def scrape_emails_via_azure(urls: list[str], azure_function_url: str) -> list[str]:
     """
     Calls an Azure Function to scrape emails from a website.
     
@@ -13,7 +13,7 @@ async def scrape_emails_via_azure(url: list[str], azure_function_url: str) -> li
     Returns:
         List of emails found on the website
     """
-    payload = {"url": url}
+    payload = {"urls": urls}
     
     async with aiohttp.ClientSession() as session:
         try:
