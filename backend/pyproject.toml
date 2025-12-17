@@ -14,5 +14,6 @@ dependencies = [
     "python-dotenv>=1.0.1",
     "email-validator>=2.1.0.post1",
     "pydantic-settings",
-    "aiosqlite"
+    "aiosqlite",
+    "aiohttp>=3.13.2",
 ]
