@@ -43,3 +43,26 @@ export const getProfile = (token) =>
       Authorization: `Bearer ${token}`
     }
   });
+
+export const listUsers = (token) =>
+  apiFetch('/api/admin/users', {
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  });
+
+export const verifyUser = (userId, token) =>
+  apiFetch(`/api/admin/users/${userId}/verify`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  });
+
+export const deleteUser = (userId, token) =>
+  apiFetch(`/api/admin/users/${userId}`, {
+    method: 'DELETE',
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  });

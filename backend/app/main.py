@@ -8,6 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 
+from .admin import router as admin_router
 from .auth import auth_backend, fastapi_users
 from .config import get_settings
 from .database import Base, engine
@@ -26,7 +27,7 @@ async def on_startup() -> None:
 async def lifespan_(app: FastAPI):
     await on_startup()
     yield
-    
+
 app = FastAPI(title=settings.app_name, lifespan=lifespan_)
 
 app.add_middleware(
@@ -36,11 +37,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-        
-
-
-
 current_active_user = fastapi_users.current_user(active=True)
 
 app.include_router(
@@ -58,6 +54,7 @@ app.include_router(
     prefix="/api/users",
     tags=["users"],
 )
+app.include_router(admin_router)
 
 
 @app.get("/api/health")
