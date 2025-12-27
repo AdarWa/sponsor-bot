@@ -16,4 +16,5 @@ dependencies = [
     "pydantic-settings",
     "aiosqlite",
     "aiohttp>=3.13.2",
+    "requests"
 ]
