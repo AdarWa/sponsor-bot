@@ -1,20 +1,25 @@
-import requests
+import aiohttp
 
-class ScrapeApi:
-    
-    def __init__(self, base_url: str, api_key: str) -> None:
+from backend.app.utils import Singleton
+
+class ScrapeApi(Singleton):
+
+    async def init(self, base_url: str, api_key: str | None = None) -> None:
         self.api_key = api_key
         self.base_url = base_url
-        self.session = requests.Session()
-        self.session.headers.update({"x-functions-key": self.api_key})
-        
-    def scrape_website(self, site: str) -> dict:
-        response = self.session.post(
-            self.base_url + "/scrape-action",
-            json={
-                "url":site
-            }
+        self.session = aiohttp.ClientSession(
+            headers={"x-functions-key": self.api_key} if self.api_key else {}
         )
-        
-        response.raise_for_status()
-        return response.json()
+
+    async def scrape_website(self, sites: str | list[str]) -> list[str]:
+        urls = [sites] if isinstance(sites, str) else sites
+        async with self.session.post(
+            f"{self.base_url}/scrape-action",
+            json={"urls": urls}
+        ) as response:
+            response.raise_for_status()
+            return await response.json()
+
+    async def close(self) -> None:
+        if self.session:
+            await self.session.close()

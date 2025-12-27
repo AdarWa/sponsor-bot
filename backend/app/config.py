@@ -15,6 +15,8 @@ class Settings(BaseSettings):
     access_token_expire_minutes: int = 60 * 24
     database_url: Optional[str] = None
     front_end_dist: str = "frontend/dist"
+    scrape_api_base_url: str = "http://localhost:7071/api"
+    scrape_api_key: str = ""
 
     # Azure Database for PostgreSQL specific overrides
     azure_pg_host: Optional[str] = None

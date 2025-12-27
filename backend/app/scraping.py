@@ -5,6 +5,8 @@ from typing import Sequence
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from backend.app.api import ScrapeApi
+
 from .models import EmailRecord, EmailScrapeTarget, EmailTemplate, SearchScrapeQuery
 
 
@@ -13,10 +15,14 @@ async def scrape_email_targets(session: AsyncSession) -> str:
 
     result = await session.execute(select(EmailScrapeTarget.url))
     websites = result.scalars().all()
-    return (
-        "Email scraping not implemented. Update `scraping.scrape_email_targets` to crawl the "
-        f"{len(websites)} tracked websites and persist discovered emails."
-    )
+    
+    emails = await ScrapeApi().scrape_website(list(websites))
+    
+    for email in emails:
+        session.add(EmailRecord(email=email))
+    await session.commit()
+    
+    return f"Found {len(emails)} email addresses from {len(websites)} websites"
 
 
 async def scrape_search_queries(session: AsyncSession) -> str:
