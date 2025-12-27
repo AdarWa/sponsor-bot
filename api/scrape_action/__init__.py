@@ -1,3 +1,4 @@
+from __future__ import annotations
 import json
 import azure.functions as func
 from extract_emails import DefaultWorker
@@ -5,6 +6,7 @@ from extract_emails.browsers import HttpxBrowser
 from extract_emails.link_filters import ContactInfoLinkFilter
 from .scraper.scraper import urls
 from .scraper.email_data_extractor import EmailExtractor
+
 
 def main(req: func.HttpRequest) -> func.HttpResponse:
     body: dict = req.get_json()
@@ -19,5 +21,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
             emails += emails_found
         
     return func.HttpResponse(
-        json.dumps(emails)
+        json.dumps(list({item for sub in emails for item in sub})),
+        mimetype="application/json",
+        status_code=200
     )
