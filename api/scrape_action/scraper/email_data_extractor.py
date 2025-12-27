@@ -4,7 +4,7 @@ from extract_emails.data_extractors import DataExtractor
 from extract_emails.utils import email_filter
 
 
-class EmailExtractor(DataExtractor):
+class AdvancedEmailExtractor(DataExtractor):
     def __init__(self):
         # Regex for standard and obfuscated emails
         self.email_pattern = re.compile(

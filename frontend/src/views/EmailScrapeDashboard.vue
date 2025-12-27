@@ -14,8 +14,6 @@ const scraping = ref(false);
 const resetState = () => {
   websites.value = [];
   newWebsite.value = '';
-  statusType.value = 'success';
-  status.value = '';
   scraping.value = false;
 };
 
@@ -26,7 +24,6 @@ const loadWebsites = async () => {
   }
   try {
     websites.value = await getWebsites(authToken.value);
-    status.value = '';
   } catch (error) {
     statusType.value = 'error';
     status.value = error.message ?? 'Unable to load websites.';
@@ -79,6 +76,7 @@ const scrapeAll = async () => {
     status.value = error.message ?? 'Unable to start scrape.';
   } finally {
     scraping.value = false;
+    await loadWebsites();
   }
 };
 

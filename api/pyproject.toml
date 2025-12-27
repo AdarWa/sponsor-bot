@@ -6,6 +6,7 @@ readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "azure-functions",
-    "extract_emails[all] @ git+https://github.com/AdarWa/extract-emails",
-    "beautifulsoup4"
+    "extract_emails[all] @ git+https://github.com/AdarWa/extract-emails@124640e475a5cd8edefd7443f558edd92c40a0ff",
+    "beautifulsoup4",
+    "ddgs"
 ]

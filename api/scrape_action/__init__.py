@@ -5,7 +5,7 @@ from extract_emails import DefaultWorker
 from extract_emails.browsers import HttpxBrowser
 from extract_emails.link_filters import ContactInfoLinkFilter
 from .scraper.scraper import urls
-from .scraper.email_data_extractor import EmailExtractor
+from .scraper.email_data_extractor import AdvancedEmailExtractor
 
 
 def main(req: func.HttpRequest) -> func.HttpResponse:
@@ -15,7 +15,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
     emails = []
     with HttpxBrowser() as browser:
         for url in scrape_urls:
-            worker = DefaultWorker(url, browser, link_filter=ContactInfoLinkFilter(url,urls), data_extractors=[EmailExtractor()])
+            worker = DefaultWorker(url, browser, link_filter=ContactInfoLinkFilter(url,urls), data_extractors=[AdvancedEmailExtractor()])
             data = worker.get_data()
             emails_found = [page.data["email"] for page in data if page.data["email"]]
             emails += emails_found
