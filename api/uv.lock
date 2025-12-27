@@ -122,16 +122,12 @@ wheels = [
 [[package]]
 name = "extract-emails"
 version = "6.0.1"
-source = { registry = "https://pypi.org/simple" }
+source = { git = "https://github.com/AdarWa/extract-emails#5dd9fea95e7d7807a2a3dc81e9bcd1b5015aeef6" }
 dependencies = [
     { name = "aiocsv" },
     { name = "aiofiles" },
     { name = "loguru" },
     { name = "pydantic" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/27/99/e9b4c2dd795a12bff2af75f9e1c79088ac45c623fc34fe0be67d5f78df0a/extract_emails-6.0.1.tar.gz", hash = "sha256:59e725bde5aab54eb9a3c67d224c23ebd193f716f180fb5d74ce41621190a130", size = 233625, upload-time = "2025-11-15T17:09:10.466Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/de/ae/f3d528d1bd84cbbbe9611c5c09dedf71de92245e025fa64080b5b1f9ce58/extract_emails-6.0.1-py3-none-any.whl", hash = "sha256:8f87cebcc50a977ea57f722ae876f42eb5d9f46a8f0eb3bcdeea9ffe6ed4252d", size = 25002, upload-time = "2025-11-15T17:09:08.094Z" },
 ]
 
 [package.optional-dependencies]
@@ -441,7 +437,7 @@ dependencies = [
 requires-dist = [
     { name = "azure-functions" },
     { name = "beautifulsoup4" },
-    { name = "extract-emails", extras = ["all"] },
+    { name = "extract-emails", extras = ["all"], git = "https://github.com/AdarWa/extract-emails" },
 ]
 
 [[package]]
