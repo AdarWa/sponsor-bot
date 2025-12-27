@@ -20,7 +20,7 @@ frontend/dist/
 backend/requirements.txt
 
 # IDE
-.vscode/
+
 .idea/
 .DS_Store
 *.db
