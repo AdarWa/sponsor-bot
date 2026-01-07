@@ -8,14 +8,13 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 
-from backend.app.api import ScrapeApi
-
 from .admin import router as admin_router
 from .auth import auth_backend, fastapi_users
 from .dashboard import router as dashboard_router
 from .config import get_settings
 from .database import Base, engine
 from .models import User
+from .scrape_actions import router as scrape_actions_router
 from .schemas import UserCreate, UserRead, UserUpdate
 
 settings = get_settings()
@@ -26,20 +25,10 @@ async def on_startup() -> None:
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
     
-    await ScrapeApi().init(
-        base_url=settings.scrape_api_base_url,
-        api_key=settings.scrape_api_key,
-    )
-
-async def on_shutdown() -> None:
-    """Cleanup on app shutdown."""
-    await ScrapeApi().close()
-
 @asynccontextmanager
 async def lifespan_(app: FastAPI):
     await on_startup()
     yield
-    await on_shutdown()
 
 app = FastAPI(title=settings.app_name, lifespan=lifespan_)
 
@@ -69,6 +58,7 @@ app.include_router(
 )
 app.include_router(admin_router)
 app.include_router(dashboard_router)
+app.include_router(scrape_actions_router)
 
 
 @app.get("/api/health")

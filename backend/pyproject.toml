@@ -16,5 +16,8 @@ dependencies = [
     "pydantic-settings",
     "aiosqlite",
     "aiohttp>=3.13.2",
-    "requests"
+    "requests",
+    "beautifulsoup4",
+    "ddgs",
+    "extract_emails[all] @ git+https://github.com/AdarWa/extract-emails@124640e475a5cd8edefd7443f558edd92c40a0ff",
 ]

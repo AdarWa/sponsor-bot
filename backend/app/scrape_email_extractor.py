@@ -1,4 +1,5 @@
 import re
+
 from bs4 import BeautifulSoup
 from extract_emails.data_extractors import DataExtractor
 from extract_emails.utils import email_filter
@@ -6,10 +7,9 @@ from extract_emails.utils import email_filter
 
 class AdvancedEmailExtractor(DataExtractor):
     def __init__(self):
-        # Regex for standard and obfuscated emails
         self.email_pattern = re.compile(
             r"[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}",
-            re.IGNORECASE
+            re.IGNORECASE,
         )
 
     @property
@@ -34,7 +34,7 @@ class AdvancedEmailExtractor(DataExtractor):
         """Decode Cloudflare-protected email from data-cfemail attribute."""
         key = int(encoded[:2], 16)
         return "".join(
-            chr(int(encoded[i:i+2], 16) ^ key) for i in range(2, len(encoded), 2)
+            chr(int(encoded[i:i + 2], 16) ^ key) for i in range(2, len(encoded), 2)
         )
 
     def is_junk(self, email: str) -> bool:
@@ -52,13 +52,11 @@ class AdvancedEmailExtractor(DataExtractor):
     def get_data(self, page_source: str) -> set[str]:
         emails = set()
 
-        # 1. Extract emails from normal text (with preprocessing)
         cleaned_text = self.preprocess(page_source)
         for match in self.email_pattern.findall(cleaned_text):
             if not self.is_junk(match):
                 emails.add(match.lower())
 
-        # 2. Extract Cloudflare-obfuscated emails
         soup = BeautifulSoup(page_source, "html.parser")
         cf_elements = soup.select("[data-cfemail]")
         for elem in cf_elements:

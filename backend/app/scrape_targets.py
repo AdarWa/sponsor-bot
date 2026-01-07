@@ -1,4 +1,4 @@
-urls = [
+CONTACT_PATHS = [
     "about",
     "about-us",
     "contact",

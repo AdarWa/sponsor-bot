@@ -1,11 +1,12 @@
 from __future__ import annotations
 
 from typing import Sequence
+import asyncio
 
 from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from backend.app.api import ScrapeApi
+from .scrape_actions import scrape_action, search_action
 
 from .models import EmailRecord, EmailScrapeTarget, EmailTemplate, SearchScrapeQuery
 
@@ -16,7 +17,7 @@ async def scrape_email_targets(session: AsyncSession) -> str:
     result = await session.execute(select(EmailScrapeTarget.url))
     websites = result.scalars().all()
     
-    emails = await ScrapeApi().scrape_website(list(websites))
+    emails = await asyncio.to_thread(scrape_action, list(websites))
     
     for email in emails:
         if not (await session.execute(select(EmailRecord).where(EmailRecord.email == email))).scalars().first():
@@ -32,7 +33,7 @@ async def scrape_search_queries(session: AsyncSession) -> str:
     result = await session.execute(select(SearchScrapeQuery.query))
     queries = result.scalars().all()
     
-    urls = await ScrapeApi().scrape_search(list(queries))
+    urls = await asyncio.to_thread(search_action, list(queries))
     
     for url in urls:
         if not (await session.execute(select(EmailScrapeTarget).where(EmailScrapeTarget.url == url))).scalars().first():
