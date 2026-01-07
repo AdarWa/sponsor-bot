@@ -126,7 +126,7 @@ watch(
         class="item-row"
       >
         <div class="item-details">
-          <p class="item-primary">{{ site.url }}</p>
+          <p class="item-primary"><a :href="site.url" target="_blank" rel="noopener noreferrer">{{ site.url }}</a></p>
           <p class="item-meta">Added {{ new Date(site.created_at).toLocaleString() }}</p>
         </div>
         <button type="button" class="button-danger" @click="removeWebsite(site.id)">

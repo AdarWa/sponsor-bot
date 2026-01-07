@@ -342,3 +342,17 @@ label {
   flex-wrap: wrap;
   margin-top: 1rem;
 }
+
+a {
+  color: #2563eb;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+a:hover {
+  color: #1d4ed8;
+}
+
+a:visited {
+  color: #7c3aed;
+}

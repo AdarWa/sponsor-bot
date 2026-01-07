@@ -29,14 +29,18 @@ async def scrape_email_targets(session: AsyncSession) -> str:
 
 async def scrape_search_queries(session: AsyncSession) -> str:
     """Collect Google search queries."""
-
     result = await session.execute(select(SearchScrapeQuery.query))
     queries = result.scalars().all()
-    return (
-        "Search scraping not implemented. Update `scraping.scrape_search_queries` to run the "
-        f"{len(queries)} queries against Google (or another source) and insert new websites into "
-        "`EmailScrapeTarget`."
-    )
+    
+    urls = await ScrapeApi().scrape_search(list(queries))
+    
+    for url in urls:
+        if not (await session.execute(select(EmailScrapeTarget).where(EmailScrapeTarget.url == url))).scalars().first():
+            session.add(EmailScrapeTarget(url=url))
+    await session.execute(delete(SearchScrapeQuery))
+    await session.commit()
+    
+    return f"Found {len(urls)} URLs from {len(queries)} search queries"
 
 
 async def send_email_campaign(session: AsyncSession, template: EmailTemplate, emails: Sequence[str]) -> str:

@@ -12,6 +12,8 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
     for query in queries:
         result = DDGS().text(query, region='il-he', safesearch='off', timelimit='y', page=1, backend="auto")
         urls += [item['href'] for item in result]
+        
+    urls = list(set(url.split('/')[0] + '//' + url.split('/')[2] for url in urls))
     
     return func.HttpResponse(
         json.dumps(urls),
