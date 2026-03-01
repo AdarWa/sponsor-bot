@@ -1,18 +1,16 @@
-"""Dashboard endpoints for verified users."""
+"""Dashboard endpoints for scraping workflows."""
 from __future__ import annotations
 from uuid import UUID
 
 from datetime import datetime, timezone
-import uuid
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from .auth import fastapi_users
 from .database import get_async_session
-from .models import EmailRecord, EmailScrapeTarget, EmailTemplate, SearchScrapeQuery, User
+from .models import EmailRecord, EmailScrapeTarget, EmailTemplate, SearchScrapeQuery
 from .schemas import (
     EmailRecordCreate,
     EmailRecordRead,
@@ -26,9 +24,6 @@ from .schemas import (
 from .scraping import scrape_email_targets, scrape_search_queries, send_email_campaign
 
 router = APIRouter(prefix="/api/dashboard", tags=["dashboard"])
-
-current_verified_user = fastapi_users.current_user(active=True, verified=True)
-
 
 def _normalize_url(url: str) -> str:
     cleaned = url.strip()
@@ -59,7 +54,6 @@ async def _ensure_template(session: AsyncSession) -> EmailTemplate:
 @router.get("/websites", response_model=list[EmailScrapeTargetRead])
 async def list_websites(
     session: AsyncSession = Depends(get_async_session),
-    _: User = Depends(current_verified_user),
 ) -> list[EmailScrapeTarget]:
     result = await session.execute(select(EmailScrapeTarget).order_by(EmailScrapeTarget.created_at.desc()))
     return list(result.scalars().all())
@@ -69,7 +63,6 @@ async def list_websites(
 async def add_website(
     payload: EmailScrapeTargetCreate,
     session: AsyncSession = Depends(get_async_session),
-    _: User = Depends(current_verified_user),
 ) -> EmailScrapeTarget:
     normalized = _normalize_url(payload.url)
     existing = await session.execute(select(EmailScrapeTarget).where(EmailScrapeTarget.url == normalized))
@@ -91,7 +84,6 @@ async def add_website(
 async def delete_website(
     target_id: UUID,
     session: AsyncSession = Depends(get_async_session),
-    _: User = Depends(current_verified_user),
 ) -> None:
     target = await session.get(EmailScrapeTarget, target_id)
     if not target:
@@ -103,7 +95,6 @@ async def delete_website(
 @router.post("/websites/scrape")
 async def trigger_email_scrape(
     session: AsyncSession = Depends(get_async_session),
-    _: User = Depends(current_verified_user),
 ) -> dict[str, str]:
     message = await scrape_email_targets(session)
     return {"status": "pending", "message": message}
@@ -112,7 +103,6 @@ async def trigger_email_scrape(
 @router.get("/queries", response_model=list[SearchScrapeQueryRead])
 async def list_queries(
     session: AsyncSession = Depends(get_async_session),
-    _: User = Depends(current_verified_user),
 ) -> list[SearchScrapeQuery]:
     result = await session.execute(select(SearchScrapeQuery).order_by(SearchScrapeQuery.created_at.desc()))
     return list(result.scalars().all())
@@ -122,7 +112,6 @@ async def list_queries(
 async def add_query(
     payload: SearchScrapeQueryCreate,
     session: AsyncSession = Depends(get_async_session),
-    _: User = Depends(current_verified_user),
 ) -> SearchScrapeQuery:
     query = SearchScrapeQuery(query=payload.query.strip())
     session.add(query)
@@ -139,7 +128,6 @@ async def add_query(
 async def delete_query(
     query_id: UUID,
     session: AsyncSession = Depends(get_async_session),
-    _: User = Depends(current_verified_user),
 ) -> None:
     query = await session.get(SearchScrapeQuery, query_id)
     if not query:
@@ -151,7 +139,6 @@ async def delete_query(
 @router.post("/queries/scrape")
 async def trigger_search_scrape(
     session: AsyncSession = Depends(get_async_session),
-    _: User = Depends(current_verified_user),
 ) -> dict[str, str]:
     message = await scrape_search_queries(session)
     return {"status": "pending", "message": message}
@@ -160,7 +147,6 @@ async def trigger_search_scrape(
 @router.get("/email-template", response_model=EmailTemplateRead)
 async def get_email_template(
     session: AsyncSession = Depends(get_async_session),
-    _: User = Depends(current_verified_user),
 ) -> EmailTemplate:
     template = await _ensure_template(session)
     return template
@@ -170,7 +156,6 @@ async def get_email_template(
 async def update_email_template(
     payload: EmailTemplateUpdate,
     session: AsyncSession = Depends(get_async_session),
-    _: User = Depends(current_verified_user),
 ) -> EmailTemplate:
     template = await _ensure_template(session)
     template.subject = payload.subject
@@ -184,7 +169,6 @@ async def update_email_template(
 @router.post("/email/send")
 async def trigger_email_send(
     session: AsyncSession = Depends(get_async_session),
-    _: User = Depends(current_verified_user),
 ) -> dict[str, str]:
     template = await _ensure_template(session)
     result = await session.execute(select(EmailRecord))
@@ -204,7 +188,6 @@ async def trigger_email_send(
 @router.get("/emails", response_model=list[EmailRecordRead])
 async def list_emails(
     session: AsyncSession = Depends(get_async_session),
-    _: User = Depends(current_verified_user),
 ) -> list[EmailRecord]:
     result = await session.execute(select(EmailRecord).order_by(EmailRecord.created_at.desc()))
     return list(result.scalars().all())
@@ -214,7 +197,6 @@ async def list_emails(
 async def add_email(
     payload: EmailRecordCreate,
     session: AsyncSession = Depends(get_async_session),
-    _: User = Depends(current_verified_user),
 ) -> EmailRecord:
     normalized = _normalize_email(payload.email)
     existing = await session.execute(select(EmailRecord).where(EmailRecord.email == normalized))
@@ -236,7 +218,6 @@ async def add_email(
 async def delete_email(
     email_id: UUID,
     session: AsyncSession = Depends(get_async_session),
-    _: User = Depends(current_verified_user),
 ) -> None:
     record = await session.get(EmailRecord, email_id)
     if not record:

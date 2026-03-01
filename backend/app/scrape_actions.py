@@ -51,6 +51,7 @@ def scrape_action(scrape_urls: Iterable[str]) -> list[str]:
                 browser,
                 link_filter=ContactInfoLinkFilter(url, CONTACT_PATHS),
                 data_extractors=[AdvancedEmailExtractor()],
+                depth=5,
             )
             data = worker.get_data()
             emails_found = [page.data["email"] for page in data if page.data["email"]]

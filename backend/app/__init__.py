@@ -5,6 +5,5 @@ __all__ = [
     "database",
     "models",
     "schemas",
-    "auth",
     "main",
 ]

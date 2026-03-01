@@ -1,9 +1,7 @@
 <script setup>
-import { inject, onMounted, ref, watch } from 'vue';
+import { onMounted, ref } from 'vue';
 
 import { createSearchQuery, deleteSearchQuery, getSearchQueries, scrapeSearchQueries } from '../services/api';
-
-const authToken = inject('authToken');
 
 const queries = ref([]);
 const newQuery = ref('');
@@ -11,21 +9,9 @@ const status = ref('');
 const statusType = ref('success');
 const scraping = ref(false);
 
-const resetState = () => {
-  queries.value = [];
-  newQuery.value = '';
-  statusType.value = 'success';
-  status.value = '';
-  scraping.value = false;
-};
-
 const loadQueries = async () => {
-  if (!authToken?.value) {
-    resetState();
-    return;
-  }
   try {
-    queries.value = await getSearchQueries(authToken.value);
+    queries.value = await getSearchQueries();
     status.value = '';
   } catch (error) {
     statusType.value = 'error';
@@ -34,11 +20,11 @@ const loadQueries = async () => {
 };
 
 const addQuery = async () => {
-  if (!authToken?.value || !newQuery.value.trim()) {
+  if (!newQuery.value.trim()) {
     return;
   }
   try {
-    await createSearchQuery({ query: newQuery.value.trim() }, authToken.value);
+    await createSearchQuery({ query: newQuery.value.trim() });
     statusType.value = 'success';
     status.value = 'Query added.';
     newQuery.value = '';
@@ -50,11 +36,8 @@ const addQuery = async () => {
 };
 
 const removeQuery = async (id) => {
-  if (!authToken?.value) {
-    return;
-  }
   try {
-    await deleteSearchQuery(id, authToken.value);
+    await deleteSearchQuery(id);
     statusType.value = 'success';
     status.value = 'Query removed.';
     await loadQueries();
@@ -65,13 +48,10 @@ const removeQuery = async (id) => {
 };
 
 const scrapeQueries = async () => {
-  if (!authToken?.value) {
-    return;
-  }
   status.value = '';
   scraping.value = true;
   try {
-    const response = await scrapeSearchQueries(authToken.value);
+    const response = await scrapeSearchQueries();
     statusType.value = 'success';
     status.value = response.message ?? 'Search scrape triggered.';
   } catch (error) {
@@ -83,16 +63,6 @@ const scrapeQueries = async () => {
 };
 
 onMounted(loadQueries);
-watch(
-  () => authToken?.value,
-  (value) => {
-    if (value) {
-      loadQueries();
-    } else {
-      resetState();
-    }
-  }
-);
 </script>
 
 <template>

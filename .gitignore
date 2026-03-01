@@ -9,6 +9,8 @@ antenv/
 
 # FastAPI artifacts
 backend/app.db
+credentials.json
+token.json
 
 # Node / frontend
 node_modules/

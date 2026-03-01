@@ -1,9 +1,7 @@
 <script setup>
-import { inject, onMounted, ref, watch } from 'vue';
+import { onMounted, ref } from 'vue';
 
 import { addEmail, deleteEmail, getEmailTemplate, getEmails, sendEmailCampaign, updateEmailTemplate } from '../services/api';
-
-const authToken = inject('authToken');
 
 const subject = ref('');
 const body = ref('');
@@ -16,26 +14,9 @@ const newEmail = ref('');
 const emailListStatus = ref('');
 const emailListStatusType = ref('success');
 
-const resetState = () => {
-  subject.value = '';
-  body.value = '';
-  status.value = '';
-  statusType.value = 'success';
-  saving.value = false;
-  sending.value = false;
-  emails.value = [];
-  newEmail.value = '';
-  emailListStatus.value = '';
-  emailListStatusType.value = 'success';
-};
-
 const loadTemplate = async () => {
-  if (!authToken?.value) {
-    resetState();
-    return;
-  }
   try {
-    const template = await getEmailTemplate(authToken.value);
+    const template = await getEmailTemplate();
     subject.value = template.subject;
     body.value = template.body;
     status.value = '';
@@ -46,12 +27,9 @@ const loadTemplate = async () => {
 };
 
 const saveTemplate = async () => {
-  if (!authToken?.value) {
-    return;
-  }
   saving.value = true;
   try {
-    await updateEmailTemplate({ subject: subject.value, body: body.value }, authToken.value);
+    await updateEmailTemplate({ subject: subject.value, body: body.value });
     statusType.value = 'success';
     status.value = 'Template saved.';
   } catch (error) {
@@ -63,13 +41,10 @@ const saveTemplate = async () => {
 };
 
 const sendEmails = async () => {
-  if (!authToken?.value) {
-    return;
-  }
   status.value = '';
   sending.value = true;
   try {
-    const response = await sendEmailCampaign(authToken.value);
+    const response = await sendEmailCampaign();
     statusType.value = 'success';
     status.value = response.message ?? 'Email sending triggered.';
   } catch (error) {
@@ -81,12 +56,8 @@ const sendEmails = async () => {
 };
 
 const loadEmails = async () => {
-  if (!authToken?.value) {
-    emails.value = [];
-    return;
-  }
   try {
-    emails.value = await getEmails(authToken.value);
+    emails.value = await getEmails();
     emailListStatus.value = '';
   } catch (error) {
     emailListStatusType.value = 'error';
@@ -95,11 +66,11 @@ const loadEmails = async () => {
 };
 
 const addEmailRecord = async () => {
-  if (!authToken?.value || !newEmail.value.trim()) {
+  if (!newEmail.value.trim()) {
     return;
   }
   try {
-    await addEmail({ email: newEmail.value.trim() }, authToken.value);
+    await addEmail({ email: newEmail.value.trim() });
     emailListStatusType.value = 'success';
     emailListStatus.value = 'Email added.';
     newEmail.value = '';
@@ -111,11 +82,8 @@ const addEmailRecord = async () => {
 };
 
 const removeEmail = async (id) => {
-  if (!authToken?.value) {
-    return;
-  }
   try {
-    await deleteEmail(id, authToken.value);
+    await deleteEmail(id);
     emailListStatusType.value = 'success';
     emailListStatus.value = 'Email removed.';
     await loadEmails();
@@ -129,17 +97,6 @@ onMounted(() => {
   loadTemplate();
   loadEmails();
 });
-watch(
-  () => authToken?.value,
-  (value) => {
-    if (value) {
-      loadTemplate();
-      loadEmails();
-    } else {
-      resetState();
-    }
-  }
-);
 </script>
 
 <template>

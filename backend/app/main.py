@@ -3,19 +3,15 @@
 from contextlib import asynccontextmanager
 from pathlib import Path
 
-from fastapi import Depends, FastAPI
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 
-from .admin import router as admin_router
-from .auth import auth_backend, fastapi_users
 from .dashboard import router as dashboard_router
 from .config import get_settings
 from .database import Base, engine
-from .models import User
 from .scrape_actions import router as scrape_actions_router
-from .schemas import UserCreate, UserRead, UserUpdate
 
 settings = get_settings()
 
@@ -39,24 +35,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-current_active_user = fastapi_users.current_user(active=True)
-
-app.include_router(
-    fastapi_users.get_auth_router(auth_backend),
-    prefix="/api/auth/jwt",
-    tags=["auth"],
-)
-app.include_router(
-    fastapi_users.get_register_router(UserRead, UserCreate),
-    prefix="/api/auth",
-    tags=["auth"],
-)
-app.include_router(
-    fastapi_users.get_users_router(UserRead, UserUpdate),
-    prefix="/api/users",
-    tags=["users"],
-)
-app.include_router(admin_router)
 app.include_router(dashboard_router)
 app.include_router(scrape_actions_router)
 
@@ -64,11 +42,6 @@ app.include_router(scrape_actions_router)
 @app.get("/api/health")
 async def health_check() -> dict[str, str]:
     return {"status": "ok"}
-
-
-@app.get("/api/me", response_model=UserRead)
-async def read_current_user(user: User = Depends(current_active_user)) -> User:
-    return user
 
 
 def mount_frontend(app: FastAPI) -> None:

@@ -11,8 +11,6 @@ class Settings(BaseSettings):
     """Application configuration pulled from environment variables when available."""
 
     app_name: str = "Sponsor Bot"
-    secret_key: str = "change-this-in-production"
-    access_token_expire_minutes: int = 60 * 24
     database_url: Optional[str] = None
     front_end_dist: str = "frontend/dist"
 

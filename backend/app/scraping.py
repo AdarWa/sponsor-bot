@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import time
 from typing import Sequence
 import asyncio
 
@@ -9,6 +10,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from .scrape_actions import scrape_action, search_action
 
 from .models import EmailRecord, EmailScrapeTarget, EmailTemplate, SearchScrapeQuery
+from . import credential_manager as cred_mng
 
 
 async def scrape_email_targets(session: AsyncSession) -> str:
@@ -48,8 +50,8 @@ async def send_email_campaign(session: AsyncSession, template: EmailTemplate, em
     """Outline how to send a campaign using the stored template."""
 
     _ = await session.execute(select(EmailRecord.id).limit(1))
-    
-    return (
-        "Email sending not implemented. Update `scraping.send_email_campaign` to deliver the "
-        f"stored template to {len(emails)} recipients."
-    )
+    creds = cred_mng.generate_creds()
+    for mail in emails:
+        cred_mng.send_email(creds, mail, template.subject, template.body)
+        time.sleep(0.5)
+    return f"Sent {len(emails)} email(s)"

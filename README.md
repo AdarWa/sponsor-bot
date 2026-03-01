@@ -1,10 +1,10 @@
 # Sponsor Bot starter
 
-A minimal FastAPI + Vue starter project with built-in authentication powered by [`fastapi-users`](https://fastapi-users.github.io/fastapi-users/).
+A minimal FastAPI + Vue starter project for managing scraping workflows.
 
 ## Backend
 
-Located in `backend/`, the API exposes JWT authentication routes (register/login) via `fastapi-users` and a `/api/me` profile route protected by the JWT dependency.
+Located in `backend/`, the API exposes dashboard routes for managing scrape targets, templates, and email campaigns.
 
 ### Setup
 
@@ -39,7 +39,7 @@ SSL is enforced by default; disable it only for local emulation with `AZURE_PG_R
 
 ## Frontend
 
-The Vue 3 app (Vite) lives in `frontend/` and provides a simple UI for registration/login/profile retrieval.
+The Vue 3 app (Vite) lives in `frontend/` and provides a simple UI for the dashboards.
 
 ```bash
 cd frontend
@@ -53,4 +53,4 @@ For production, build the frontend (`npm run build`) and FastAPI will automatica
 
 - Default API base URL for the frontend is `http://localhost:8000`. Override via `VITE_API_BASE`.
 - Vite dev server proxies `/api` calls to `localhost:8000`.
-- Authentication relies wholly on `fastapi-users` so token refresh/reset flows can be extended through that library's routers.
+- Authentication has been removed; all dashboard routes are now public.

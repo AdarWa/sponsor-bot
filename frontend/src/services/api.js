@@ -14,22 +14,10 @@ export const apiFetch = async (path, options = {}) => {
   }
   return response.json();
 };
+export const getWebsites = () => apiFetch('/api/dashboard/websites');
 
-export const login = async (email, password) => {
-  const body = new URLSearchParams();
-  body.append('username', email);
-  body.append('password', password);
-  return apiFetch('/api/auth/jwt/login', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded'
-    },
-    body
-  });
-};
-
-export const register = (payload) =>
-  apiFetch('/api/auth/register', {
+export const createWebsite = (payload) =>
+  apiFetch('/api/dashboard/websites', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
@@ -37,148 +25,65 @@ export const register = (payload) =>
     body: JSON.stringify(payload)
   });
 
-export const getProfile = (token) =>
-  apiFetch('/api/me', {
-    headers: {
-      Authorization: `Bearer ${token}`
-    }
-  });
-
-export const listUsers = (token) =>
-  apiFetch('/api/admin/users', {
-    headers: {
-      Authorization: `Bearer ${token}`
-    }
-  });
-
-export const verifyUser = (userId, token) =>
-  apiFetch(`/api/admin/users/${userId}/verify`, {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${token}`
-    }
-  });
-
-export const deleteUser = (userId, token) =>
-  apiFetch(`/api/admin/users/${userId}`, {
-    method: 'DELETE',
-    headers: {
-      Authorization: `Bearer ${token}`
-    }
-  });
-
-export const getWebsites = (token) =>
-  apiFetch('/api/dashboard/websites', {
-    headers: {
-      Authorization: `Bearer ${token}`
-    }
-  });
-
-export const createWebsite = (payload, token) =>
-  apiFetch('/api/dashboard/websites', {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${token}`,
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(payload)
-  });
-
-export const scrapeWebsites = (token) =>
+export const scrapeWebsites = () =>
   apiFetch('/api/dashboard/websites/scrape', {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${token}`
-    }
+    method: 'POST'
   });
 
-export const deleteWebsite = (id, token) =>
+export const deleteWebsite = (id) =>
   apiFetch(`/api/dashboard/websites/${id}`, {
     method: 'DELETE',
-    headers: {
-      Authorization: `Bearer ${token}`
-    }
   });
 
-export const getSearchQueries = (token) =>
-  apiFetch('/api/dashboard/queries', {
-    headers: {
-      Authorization: `Bearer ${token}`
-    }
-  });
+export const getSearchQueries = () => apiFetch('/api/dashboard/queries');
 
-export const createSearchQuery = (payload, token) =>
+export const createSearchQuery = (payload) =>
   apiFetch('/api/dashboard/queries', {
     method: 'POST',
     headers: {
-      Authorization: `Bearer ${token}`,
       'Content-Type': 'application/json'
     },
     body: JSON.stringify(payload)
   });
 
-export const scrapeSearchQueries = (token) =>
+export const scrapeSearchQueries = () =>
   apiFetch('/api/dashboard/queries/scrape', {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${token}`
-    }
+    method: 'POST'
   });
 
-export const deleteSearchQuery = (id, token) =>
+export const deleteSearchQuery = (id) =>
   apiFetch(`/api/dashboard/queries/${id}`, {
     method: 'DELETE',
-    headers: {
-      Authorization: `Bearer ${token}`
-    }
   });
 
-export const getEmailTemplate = (token) =>
-  apiFetch('/api/dashboard/email-template', {
-    headers: {
-      Authorization: `Bearer ${token}`
-    }
-  });
+export const getEmailTemplate = () => apiFetch('/api/dashboard/email-template');
 
-export const updateEmailTemplate = (payload, token) =>
+export const updateEmailTemplate = (payload) =>
   apiFetch('/api/dashboard/email-template', {
     method: 'PUT',
     headers: {
-      Authorization: `Bearer ${token}`,
       'Content-Type': 'application/json'
     },
     body: JSON.stringify(payload)
   });
 
-export const sendEmailCampaign = (token) =>
+export const sendEmailCampaign = () =>
   apiFetch('/api/dashboard/email/send', {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${token}`
-    }
+    method: 'POST'
   });
 
-export const getEmails = (token) =>
-  apiFetch('/api/dashboard/emails', {
-    headers: {
-      Authorization: `Bearer ${token}`
-    }
-  });
+export const getEmails = () => apiFetch('/api/dashboard/emails');
 
-export const addEmail = (payload, token) =>
+export const addEmail = (payload) =>
   apiFetch('/api/dashboard/emails', {
     method: 'POST',
     headers: {
-      Authorization: `Bearer ${token}`,
       'Content-Type': 'application/json'
     },
     body: JSON.stringify(payload)
   });
 
-export const deleteEmail = (id, token) =>
+export const deleteEmail = (id) =>
   apiFetch(`/api/dashboard/emails/${id}`, {
     method: 'DELETE',
-    headers: {
-      Authorization: `Bearer ${token}`
-    }
   });

@@ -1,9 +1,7 @@
 <script setup>
-import { inject, onMounted, ref, watch } from 'vue';
+import { onMounted, ref } from 'vue';
 
 import { createWebsite, deleteWebsite, getWebsites, scrapeWebsites } from '../services/api';
-
-const authToken = inject('authToken');
 
 const websites = ref([]);
 const newWebsite = ref('');
@@ -11,19 +9,9 @@ const status = ref('');
 const statusType = ref('success');
 const scraping = ref(false);
 
-const resetState = () => {
-  websites.value = [];
-  newWebsite.value = '';
-  scraping.value = false;
-};
-
 const loadWebsites = async () => {
-  if (!authToken?.value) {
-    resetState();
-    return;
-  }
   try {
-    websites.value = await getWebsites(authToken.value);
+    websites.value = await getWebsites();
   } catch (error) {
     statusType.value = 'error';
     status.value = error.message ?? 'Unable to load websites.';
@@ -31,11 +19,11 @@ const loadWebsites = async () => {
 };
 
 const addWebsite = async () => {
-  if (!authToken?.value || !newWebsite.value.trim()) {
+  if (!newWebsite.value.trim()) {
     return;
   }
   try {
-    await createWebsite({ url: newWebsite.value.trim() }, authToken.value);
+    await createWebsite({ url: newWebsite.value.trim() });
     statusType.value = 'success';
     status.value = 'Website added.';
     newWebsite.value = '';
@@ -47,11 +35,8 @@ const addWebsite = async () => {
 };
 
 const removeWebsite = async (id) => {
-  if (!authToken?.value) {
-    return;
-  }
   try {
-    await deleteWebsite(id, authToken.value);
+    await deleteWebsite(id);
     statusType.value = 'success';
     status.value = 'Website removed.';
     await loadWebsites();
@@ -62,13 +47,10 @@ const removeWebsite = async (id) => {
 };
 
 const scrapeAll = async () => {
-  if (!authToken?.value) {
-    return;
-  }
   status.value = '';
   scraping.value = true;
   try {
-    const response = await scrapeWebsites(authToken.value);
+    const response = await scrapeWebsites();
     statusType.value = 'success';
     status.value = response.message ?? 'Scrape triggered.';
   } catch (error) {
@@ -81,16 +63,6 @@ const scrapeAll = async () => {
 };
 
 onMounted(loadWebsites);
-watch(
-  () => authToken?.value,
-  (value) => {
-    if (value) {
-      loadWebsites();
-    } else {
-      resetState();
-    }
-  }
-);
 </script>
 
 <template>
