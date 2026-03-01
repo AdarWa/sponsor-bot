@@ -14,6 +14,9 @@ from .scrape_targets import CONTACT_PATHS
 
 router = APIRouter(prefix="/api", tags=["scrape-actions"])
 
+MAX_FETCHES_PER_URL = 5
+_FETCH_COUNTS: dict[str, int] = {}
+
 
 class SearchPayload(BaseModel):
     queries: list[str]
@@ -46,6 +49,11 @@ def scrape_action(scrape_urls: Iterable[str]) -> list[str]:
 
     with HttpxBrowser() as browser:
         for url in scrape_urls:
+            normalized_url = url.strip().rstrip("/").lower()
+            current_count = _FETCH_COUNTS.get(normalized_url, 0)
+            if current_count >= MAX_FETCHES_PER_URL:
+                continue
+            _FETCH_COUNTS[normalized_url] = current_count + 1
             worker = DefaultWorker(
                 url,
                 browser,
